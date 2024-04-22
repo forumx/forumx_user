@@ -10,6 +10,8 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import jakarta.transaction.Transactional;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,41 +20,21 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.Map;
+import java.util.UUID;
 
+@Slf4j
 @Service
 public class AccountService {
     private final UserRepository userRepository;
     private final TokenService tokenService;
-    private final GoogleIdTokenVerifier verifier;
 
     @Autowired
-    public AccountService(@Value("${app.googleClientId}") String clientId, UserRepository userRepository,
-                          TokenService tokenService) {
+    public AccountService(UserRepository userRepository, TokenService tokenService){
         this.userRepository = userRepository;
         this.tokenService = tokenService;
-        NetHttpTransport transport = new NetHttpTransport();
-        JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
-        verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
-                .setAudience(Collections.singletonList(clientId))
-                .build();
     }
 
-//    public UserEntity getAccount(Long id) {
-//        return userRepository.findById(id).orElse(null);
-//    }
-
-    //trong nay la idToken
-    public String loginOAuthGoogle(IdTokenModel requestBody) {
-        UserModel userModel = verifyIDToken(requestBody.getIdToken());
-        if (userModel == null||!StringUtils.hasText(userModel.getEmail())) {
-            throw new IllegalArgumentException();
-        }
-        UserEntity userEntity = createOrUpdateUser(userModel);
-        return tokenService.createToken(userEntity);
-    }
-
-
-    //TODO check lai payload va map lai
     @Transactional
     public UserEntity createOrUpdateUser(UserModel userModel) {
         UserEntity existingUser = userRepository.findByEmail(userModel.getEmail());
@@ -78,22 +60,13 @@ public class AccountService {
         }
     }
 
-    private UserModel verifyIDToken(String idToken) {
-        try {
-            GoogleIdToken idTokenObj = verifier.verify(idToken);
-            if (idTokenObj == null) {
-                return null;
-            }
-            GoogleIdToken.Payload payload = idTokenObj.getPayload();
-
-            UserModel userModel = new UserModel();
-            userModel.setEmail(payload.getEmail());
-            userModel.setUsername(payload.getEmail());
-            userModel.setName((String) payload.get("name"));
-            userModel.setImg_url((String) payload.get("picture"));
-            return userModel;
-        } catch (GeneralSecurityException | IOException e) {
-            return null;
-        }
+    //TODO: check thong tin va map lai
+    public UUID findOrRegisterAccount(
+            @NonNull String socialUserId,
+            @NonNull String socialUserProvider,
+            @NonNull Map<String, Object> socialUserInfo
+    ) {
+        log.info("Looking up or registering social user; id={}; provider={}; info={}", socialUserId, socialUserProvider, socialUserInfo);
+        return UUID.randomUUID();
     }
 }

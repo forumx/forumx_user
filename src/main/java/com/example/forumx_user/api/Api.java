@@ -26,10 +26,10 @@ public class Api {
         return p.getName();
     }
 
-    @PostMapping("oauth/login")
-    public ResponseEntity<String> loginWithGoogleOauth2(@RequestBody IdTokenModel requestBody, HttpServletResponse response) {
-        String authToken = accountService.loginOAuthGoogle(requestBody);
-
-        return ResponseEntity.ok(authToken);
-    }
+//    @PostMapping("oauth/login")
+//    public ResponseEntity<String> loginWithGoogleOauth2(@RequestBody IdTokenModel requestBody, HttpServletResponse response) {
+//        String authToken = accountService.loginOAuthGoogle(requestBody);
+//
+//        return ResponseEntity.ok(authToken);
+//    }
 }
