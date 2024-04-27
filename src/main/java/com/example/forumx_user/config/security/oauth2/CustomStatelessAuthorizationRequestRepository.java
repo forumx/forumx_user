@@ -49,8 +49,7 @@ public class CustomStatelessAuthorizationRequestRepository implements Authorizat
 
     @Override
     public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request, HttpServletResponse response) {
-        removeCookie(request, response);
-        return null;
+        return this.retrieveCookie(request);
     }
 
         private OAuth2AuthorizationRequest retrieveCookie(HttpServletRequest request) {

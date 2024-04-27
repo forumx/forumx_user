@@ -2,6 +2,7 @@ package com.example.forumx_user.config.security.filter;
 
 import com.example.forumx_user.config.security.oauth2.OAuthController;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
@@ -15,6 +16,7 @@ import java.lang.reflect.Field;
 public class CustomAuthorizationRedirectFilter extends OAuth2AuthorizationRequestRedirectFilter {
 
     @SneakyThrows
+    @Autowired
     public CustomAuthorizationRedirectFilter(
             OAuthController oAuthController,
             OAuth2AuthorizationRequestResolver authorizationRequestResolver,

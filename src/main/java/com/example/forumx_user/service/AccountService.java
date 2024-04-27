@@ -36,7 +36,7 @@ public class AccountService {
     }
 
     @Transactional
-    public UserEntity createOrUpdateUser(UserModel userModel) {
+    public Long createOrUpdateUser(UserModel userModel, String mode) {
         UserEntity existingUser = userRepository.findByEmail(userModel.getEmail());
         if (existingUser == null) {
             UserEntity newUser = new UserEntity();
@@ -50,23 +50,37 @@ public class AccountService {
             if(StringUtils.hasText(userModel.getImg_url())) {
                 newUser.setImg_url(userModel.getImg_url());
             }
-            return userRepository.save(newUser);
+            return userRepository.save(newUser).getId();
 
-        }else{
-            existingUser.setName(userModel.getName());
+        }else if(mode.equals("update")){
+            if(userModel.getName().equals(userModel.getEmail())) {
+                existingUser.setName(userModel.getName());
+            }
             if(StringUtils.hasText(userModel.getImg_url())) {
                 existingUser.setImg_url(userModel.getImg_url());}
-            return userRepository.save(existingUser);
+            return userRepository.save(existingUser).getId();
         }
+        return existingUser.getId();
     }
 
     //TODO: check thong tin va map lai
-    public UUID findOrRegisterAccount(
+    public Long findOrRegisterAccount(
             @NonNull String socialUserId,
             @NonNull String socialUserProvider,
             @NonNull Map<String, Object> socialUserInfo
     ) {
         log.info("Looking up or registering social user; id={}; provider={}; info={}", socialUserId, socialUserProvider, socialUserInfo);
-        return UUID.randomUUID();
+        UserModel userModel = new UserModel();
+        userModel.setUsername((String) socialUserInfo.get("email"));
+        userModel.setEmail((String) socialUserInfo.get("email"));
+        userModel.setImg_url((String) socialUserInfo.get("picture"));
+        userModel.setName((String) socialUserInfo.get("name"));
+        String mode;
+        if(socialUserProvider.equals("auth0")){
+            mode = "add";
+        }else{
+            mode = "update";
+        }
+        return createOrUpdateUser(userModel, mode);
     }
 }

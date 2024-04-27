@@ -7,21 +7,21 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 
 public class AuthenticationHelper {
 
-    public static void attachAccountId(Authentication authentication, String accountId) {
+    public static void attachUserId(Authentication authentication, Long accountId) {
         Object originalDetails = authentication.getDetails();
         if (originalDetails instanceof Details details) {
-            details.setAccountId(accountId);
+            details.setUserId(accountId);
         } else {
             Details details = new Details()
                     .setOriginal(originalDetails)
-                    .setAccountId(accountId);
+                    .setUserId(accountId);
             ((OAuth2AuthenticationToken) authentication).setDetails(details);
         }
     }
 
-    public static String retrieveAccountId(Authentication authentication) {
+    public static Long retrieveUserId(Authentication authentication) {
         Details details = (Details) authentication.getDetails();
-        return details.getAccountId();
+        return details.getUserId();
     }
 
     @Data
@@ -29,7 +29,7 @@ public class AuthenticationHelper {
     private static class Details {
 
         private Object original;
-        private String accountId;
+        private Long userId;
 
     }
 

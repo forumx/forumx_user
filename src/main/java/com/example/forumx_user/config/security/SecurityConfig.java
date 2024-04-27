@@ -2,10 +2,7 @@ package com.example.forumx_user.config.security;
 
 import com.example.forumx_user.config.security.filter.CustomAuthorizationRedirectFilter;
 import com.example.forumx_user.config.security.filter.TokenFilter;
-import com.example.forumx_user.config.security.oauth2.CustomAuthorizationRequestResolver;
-import com.example.forumx_user.config.security.oauth2.CustomAuthorizedClientService;
-import com.example.forumx_user.config.security.oauth2.CustomStatelessAuthorizationRequestRepository;
-import com.example.forumx_user.config.security.oauth2.OAuthController;
+import com.example.forumx_user.config.security.oauth2.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,10 +29,9 @@ public class SecurityConfig {
     private final CustomStatelessAuthorizationRequestRepository customStatelessAuthorizationRequestRepository;
 
     private final CustomAuthorizationRedirectFilter customAuthorizationRedirectFilter;
-
-    private final CustomAuthorizationRequestResolver customAuthorizationRequestResolver;
-
     private final OAuthController oAuthController;
+
+    private final UnauthenticatedRequestHandler unauthenticatedRequestHandler;
 
     @Autowired
     public SecurityConfig(UserDetailsService userDetailsService,
@@ -43,16 +39,16 @@ public class SecurityConfig {
                           CustomAuthorizationRedirectFilter customAuthorizationRedirectFilter,
                           CustomAuthorizedClientService customAuthorizedClientService,
                           CustomStatelessAuthorizationRequestRepository customStatelessAuthorizationRequestRepository,
-                          CustomAuthorizationRequestResolver customAuthorizationRequestResolver,
-                          OAuthController oAuthController
+                          OAuthController oAuthController,
+                          UnauthenticatedRequestHandler unauthenticatedRequestHandler
                           ){
         this.userDetailsService = userDetailsService;
         this.tokenFilter = tokenFilter;
         this.customAuthorizationRedirectFilter = customAuthorizationRedirectFilter;
         this.customStatelessAuthorizationRequestRepository = customStatelessAuthorizationRequestRepository;
         this.customAuthorizedClientService = customAuthorizedClientService;
-        this.customAuthorizationRequestResolver = customAuthorizationRequestResolver;
         this.oAuthController = oAuthController;
+        this.unauthenticatedRequestHandler = unauthenticatedRequestHandler;
     }
 
 
@@ -75,7 +71,6 @@ public class SecurityConfig {
                 .oauth2Login(config -> {
                     config.authorizationEndpoint(subconfig -> {
                         subconfig.baseUri(OAuthController.AUTHORIZATION_BASE_URL);
-                        subconfig.authorizationRequestResolver(this.customAuthorizationRequestResolver);
                         subconfig.authorizationRequestRepository(this.customStatelessAuthorizationRequestRepository);
                     });
                     config.redirectionEndpoint(subconfig -> {
@@ -86,13 +81,12 @@ public class SecurityConfig {
                     config.failureHandler(oAuthController::oauthFailureResponse);
                 })
                 // Filters
-                .addFilterBefore(this.customAuthorizationRedirectFilter, OAuth2AuthorizationRequestRedirectFilter.class);
+                .addFilterBefore(this.customAuthorizationRedirectFilter, OAuth2AuthorizationRequestRedirectFilter.class)
                 // Auth exceptions
-//                .exceptionHandling(config -> {
-//                    config.accessDeniedHandler(this::accessDenied);
-//                    config.authenticationEntryPoint(this::accessDenied);
-//                });
-//        httpSecurity.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
+                .exceptionHandling(config -> {
+                    config.authenticationEntryPoint(unauthenticatedRequestHandler);
+                });
+        httpSecurity.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
 
