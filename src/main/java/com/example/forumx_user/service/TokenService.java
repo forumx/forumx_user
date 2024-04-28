@@ -50,6 +50,7 @@ public class TokenService {
                 .setSubject(userEntity.getEmail())
                 .claim("ROLE", userEntity.getRole())
                 .claim("NAME", userEntity.getName())
+                .claim("PICTURE", userEntity.getImg_url())
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS512, secretKey)
