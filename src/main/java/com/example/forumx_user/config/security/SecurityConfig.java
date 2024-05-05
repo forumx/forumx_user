@@ -3,23 +3,36 @@ package com.example.forumx_user.config.security;
 import com.example.forumx_user.config.security.filter.CustomAuthorizationRedirectFilter;
 import com.example.forumx_user.config.security.filter.TokenFilter;
 import com.example.forumx_user.config.security.oauth2.*;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Value("${spring.security.oauth2.client.provider.auth0.issuerUri}")
+    private String issuer;
+    @Value("${spring.security.oauth2.client.registration.auth0.client-id}")
+    private String clientId;
+
     private final UserDetailsService userDetailsService;
 
     private final TokenFilter tokenFilter;
@@ -40,8 +53,8 @@ public class SecurityConfig {
                           CustomAuthorizedClientService customAuthorizedClientService,
                           CustomStatelessAuthorizationRequestRepository customStatelessAuthorizationRequestRepository,
                           OAuthController oAuthController,
-                          UnauthenticatedRequestHandler unauthenticatedRequestHandler
-                          ){
+                          UnauthenticatedRequestHandler unauthenticatedRequestHandler)
+    {
         this.userDetailsService = userDetailsService;
         this.tokenFilter = tokenFilter;
         this.customAuthorizationRedirectFilter = customAuthorizationRedirectFilter;
@@ -50,7 +63,6 @@ public class SecurityConfig {
         this.oAuthController = oAuthController;
         this.unauthenticatedRequestHandler = unauthenticatedRequestHandler;
     }
-
 
 
     @Bean
@@ -80,14 +92,29 @@ public class SecurityConfig {
                     config.successHandler(oAuthController::oauthSuccessResponse);
                     config.failureHandler(oAuthController::oauthFailureResponse);
                 })
+                .logout(logout -> logout.logoutSuccessHandler(logoutHandler())
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout")))
                 // Filters
-                .addFilterBefore(this.customAuthorizationRedirectFilter, OAuth2AuthorizationRequestRedirectFilter.class)
-                // Auth exceptions
-                .exceptionHandling(config -> {
-                    config.authenticationEntryPoint(unauthenticatedRequestHandler);
-                });
+                .addFilterBefore(this.customAuthorizationRedirectFilter, OAuth2AuthorizationRequestRedirectFilter.class);
+        // Auth exceptions
+//                .exceptionHandling(config -> {
+//                    config.authenticationEntryPoint(unauthenticatedRequestHandler);
+//                });
         httpSecurity.addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.httpBasic(Customizer.withDefaults());
         return httpSecurity.build();
     }
 
+    private LogoutSuccessHandler logoutHandler() {
+        return (request, response, authentication) -> {
+            try {
+//                response.sendRedirect(issuer + "v2/logout?client_id=" + clientId);
+                response.setStatus(HttpServletResponse.SC_ACCEPTED);
+                response.getWriter().write("{ \"redirectUrl\": \"%s\" }".formatted(issuer + "v2/logout?client_id=" + clientId));
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
 }

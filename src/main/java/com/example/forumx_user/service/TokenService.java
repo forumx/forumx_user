@@ -42,9 +42,7 @@ public class TokenService {
         }
     }
     public String createToken(UserEntity userEntity) {
-        long validity = 10;
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + validity * 60 * 1000);
+
         log.info(userEntity.getUsername());
         return Jwts.builder()
                 .setSubject(userEntity.getEmail())
@@ -52,7 +50,7 @@ public class TokenService {
                 .claim("NAME", userEntity.getName())
                 .claim("PICTURE", userEntity.getImg_url())
                 .setIssuedAt(new Date())
-                .setExpiration(expiryDate)
+                .setExpiration(expireDate())
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
     }
@@ -74,5 +72,11 @@ public class TokenService {
         return null;
     }
 
+    public static Date expireDate(){
+        long validity = 10;
+        Date now = new Date();
+        return new Date(now.getTime() + validity * 60 * 1000);
+
+    }
 
 }
