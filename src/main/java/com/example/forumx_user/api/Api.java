@@ -1,35 +1,40 @@
 package com.example.forumx_user.api;
 
-import com.example.forumx_user.model.IdTokenModel;
 import com.example.forumx_user.service.AccountService;
-import com.example.forumx_user.service.UserService;
-import com.google.common.net.HttpHeaders;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.ResponseCookie;
+import com.example.forumx_user.service.TokenService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
 @RestController
 @CrossOrigin
+@Slf4j
 public class Api {
     private final AccountService accountService;
 
-    public Api(AccountService accountService){
+    private final TokenService tokenService;
+
+    @Value("${backend.domain:localhost}")
+    private String domain;
+
+    @Autowired
+    public Api(AccountService accountService, TokenService tokenService){
         this.accountService = accountService;
+        this.tokenService = tokenService;
     }
 
     @GetMapping("/api/getMe")
     public String getMe(Principal p){
+        log.info(p.toString());
         return p.getName();
     }
 
-    @PostMapping("oauth/login")
-    public ResponseEntity<String> loginWithGoogleOauth2(@RequestBody IdTokenModel requestBody, HttpServletResponse response) {
-        String authToken = accountService.loginOAuthGoogle(requestBody);
-
-        return ResponseEntity.ok(authToken);
+    @PostMapping("/api/renewJwt")
+    public ResponseEntity<String> login(Principal p){
+        return ResponseEntity.ok().header("Set-Cookie","AUTH_TOKEN="+ tokenService.createTokenFromUserName(p.getName()) +"; Domain = "+domain+"; Path=/; HttpOnly").build();
     }
 }

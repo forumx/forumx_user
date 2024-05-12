@@ -179,5 +179,13 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>aws</id>
+            <properties>
+                <spring.profiles.active>aws</spring.profiles.active>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>

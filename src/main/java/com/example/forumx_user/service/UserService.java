@@ -6,6 +6,7 @@ import com.example.forumx_user.model.UserModel;
 import com.example.forumx_user.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -100,7 +101,7 @@ public class UserService implements UserDetailsService {
             authorities.add(new SimpleGrantedAuthority(userEntity.getRole()));
             return new User(email, "", authorities);
         }else{
-            throw new UsernameNotFoundException("User not found");
+            return null;
         }
     }
 
