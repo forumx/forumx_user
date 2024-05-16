@@ -3,7 +3,7 @@ name: deploy-to-aws-eb
 
 on:
   push:
-    branches: [ main ]
+    branches: [ aws ]
 
 jobs:
   build:
@@ -27,7 +27,7 @@ jobs:
           aws-region: "ap-southeast-2"
           
       - name: Build with Maven
-        run:  mvn clean install --% -Dmaven.test.skip=true -Paws 
+        run:  mvn clean install --% -Dmaven.test.skip=true
 
       - name: Upload package to S3 bucket
         run: aws s3 cp target/forumX_user-0.0.1-SNAPSHOT.jar s3://forumx-user/
