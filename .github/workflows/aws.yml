@@ -3,7 +3,7 @@ name: deploy-to-aws-eb
 
 on:
   push:
-    branches: [ main ]
+    branches: [ aws ]
 
 jobs:
   build:
