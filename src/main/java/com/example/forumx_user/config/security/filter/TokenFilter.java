@@ -42,28 +42,31 @@ public class TokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-               try {
-                   String jwt = getJwtFromRequest(request);
-                   if (StringUtils.hasText(jwt)) {
-                       String username = tokenService.getUsername(jwt);
-                       if (username != null) {
-                           UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                           if (userDetails == null) {
-                               throw new BadCredentialsException("Invalid jwt");
-                           }
-                           Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-                           SecurityContextHolder.getContext().setAuthentication(authentication);
-                       } else {
-                           throw new BadCredentialsException("Invalid jwt");
-                       }
-                   } else {
-                       throw new BadCredentialsException("Don't have jwt");
-                   }
+        if(request.getServletPath().startsWith("/api/")) {
+            try {
+                String jwt = getJwtFromRequest(request);
+                if (StringUtils.hasText(jwt)) {
+                    String username = tokenService.getUsername(jwt);
+                    if (username != null) {
+                        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                        if (userDetails == null) {
+                            throw new BadCredentialsException("Invalid jwt");
+                        }
+                        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    } else {
+                        throw new BadCredentialsException("Invalid jwt");
+                    }
+                } else {
+                    throw new BadCredentialsException("Don't have jwt");
+                }
 
-                   filterChain.doFilter(request, response);
-               }catch (AuthenticationException ex){
-                   unauthenticatedRequestHandler.commence(request, response, ex);
-               }
+            } catch (AuthenticationException ex) {
+                unauthenticatedRequestHandler.commence(request, response, ex);
+            }
+        }
+        filterChain.doFilter(request, response);
+
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {
