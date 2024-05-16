@@ -18,7 +18,7 @@ public class Api {
 
     private final TokenService tokenService;
 
-    @Value("${backend.domain:localhost}")
+    @Value("${frontend.domain:localhost}")
     private String domain;
 
     @Autowired
@@ -36,5 +36,10 @@ public class Api {
     @PostMapping("/api/renewJwt")
     public ResponseEntity<String> login(Principal p){
         return ResponseEntity.ok().header("Set-Cookie","AUTH_TOKEN="+ tokenService.createTokenFromUserName(p.getName()) +"; Domain = "+domain+"; Path=/; HttpOnly").build();
+    }
+
+    @GetMapping("/hello")
+    public ResponseEntity<String> hello(){
+        return ResponseEntity.ok("Hello");
     }
 }

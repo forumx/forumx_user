@@ -30,15 +30,15 @@ jobs:
         run:  mvn clean install --% -Dmaven.test.skip=true -Paws 
 
       - name: Upload package to S3 bucket
-        run: aws s3 cp target/forumx-user.jar s3://forumx-user-bucket/
+        run: aws s3 cp target/forumX_user-0.0.1-SNAPSHOT.jar s3://forumx-user/
 
       - name: Create new ElasticBeanstalk Application Version
         run: |
           aws elasticbeanstalk create-application-version \
           --application-name forumx-user \
-          --source-bundle S3Bucket="forumx-user-bucket",S3Key="forumx-user.jar" \
+          --source-bundle S3Bucket="forumx-user",S3Key="forumX_user-0.0.1-SNAPSHOT.jar" \
           --version-label "ver-${{ github.sha }}" \
           --description "commit-sha-${{ github.sha }}"
 
       - name: Deploy new ElasticBeanstalk Application Version
-        run: aws elasticbeanstalk update-environment --environment-name Forumx-user-env-1 --version-label "ver-${{ github.sha }}"
+        run: aws elasticbeanstalk update-environment --environment-name forumx-user-env --version-label "ver-${{ github.sha }}"
