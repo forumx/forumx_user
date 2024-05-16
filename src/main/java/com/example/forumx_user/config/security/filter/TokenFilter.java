@@ -40,9 +40,10 @@ public class TokenFilter extends OncePerRequestFilter {
         this.unauthenticatedRequestHandler = unauthenticatedRequestHandler;
     }
 
-    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if(request.getServletPath().startsWith("/api/")) {
+        if(!request.getServletPath().startsWith("/api/")) {
+            filterChain.doFilter(request,response);
+        }else {
             try {
                 String jwt = getJwtFromRequest(request);
                 if (StringUtils.hasText(jwt)) {
@@ -60,13 +61,11 @@ public class TokenFilter extends OncePerRequestFilter {
                 } else {
                     throw new BadCredentialsException("Don't have jwt");
                 }
-
+                filterChain.doFilter(request, response);
             } catch (AuthenticationException ex) {
                 unauthenticatedRequestHandler.commence(request, response, ex);
             }
         }
-        filterChain.doFilter(request, response);
-
     }
 
     private String getJwtFromRequest(HttpServletRequest request) {
