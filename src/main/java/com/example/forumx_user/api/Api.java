@@ -33,7 +33,7 @@ public class Api {
         return p.getName();
     }
 
-    @PostMapping("/api/renewJwt")
+    @GetMapping("/api/renewJwt")
     public ResponseEntity<String> login(Principal p){
         return ResponseEntity.ok().header("Set-Cookie","AUTH_TOKEN="+ tokenService.createTokenFromUserName(p.getName()) +"; Domain = "+domain+"; Path=/; HttpOnly").build();
     }
