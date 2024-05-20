@@ -37,7 +37,7 @@ public class OAuthController {
 
 
 
-    @Value("${backend.domain:localhost}")
+    @Value("${frontend.domain:localhost}")
     private String domain;
 
 

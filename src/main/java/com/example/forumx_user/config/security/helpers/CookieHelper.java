@@ -5,6 +5,8 @@ import lombok.NonNull;
 import org.apache.tomcat.util.http.Rfc6265CookieProcessor;
 
 import jakarta.servlet.http.Cookie;
+import org.springframework.beans.factory.annotation.Value;
+
 import java.time.Duration;
 import java.util.Optional;
 
@@ -12,7 +14,8 @@ import static java.util.Objects.isNull;
 
 public class CookieHelper {
 
-    private static final String COOKIE_DOMAIN = "localhost";
+
+    private static final String COOKIE_DOMAIN = "http://densach.edu.vn";
     private static final Boolean HTTP_ONLY = Boolean.TRUE;
     private static final Boolean SECURE = Boolean.FALSE;
 
