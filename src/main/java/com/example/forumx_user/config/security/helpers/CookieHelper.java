@@ -41,6 +41,7 @@ public class CookieHelper {
         cookie.setSecure(SECURE);
         cookie.setMaxAge((int) maxAge.toSeconds());
         cookie.setPath("/");
+        cookie.setAttribute("SameSite", "None");
         // Generate cookie string
         Rfc6265CookieProcessor processor = new Rfc6265CookieProcessor();
         return processor.generateHeader(cookie, request);
