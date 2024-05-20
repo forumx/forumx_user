@@ -40,6 +40,7 @@ public class TokenFilter extends OncePerRequestFilter {
         this.unauthenticatedRequestHandler = unauthenticatedRequestHandler;
     }
 
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if(!request.getServletPath().startsWith("/api/")) {
             filterChain.doFilter(request,response);
