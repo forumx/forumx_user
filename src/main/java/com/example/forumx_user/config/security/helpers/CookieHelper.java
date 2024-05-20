@@ -15,7 +15,7 @@ import static java.util.Objects.isNull;
 public class CookieHelper {
 
 
-    private static final String COOKIE_DOMAIN = "http://densach.edu.vn";
+    private static final String COOKIE_DOMAIN = "densach.edu.vn";
     private static final Boolean HTTP_ONLY = Boolean.TRUE;
     private static final Boolean SECURE = Boolean.FALSE;
 
