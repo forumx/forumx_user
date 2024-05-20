@@ -73,7 +73,7 @@ public class OAuthController {
 //        response.addHeader(HttpHeaders.SET_COOKIE, CookieHelper.generateCookie(SESSION_COOKIE_NAME, accountId, Duration.ofDays(1), request));
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_ACCEPTED);
-        response.addHeader("Set-Cookie","AUTH_TOKEN="+ tokenService.createTokenFromUserId(userId) +"; Domain = "+domain+"; Path=/; HttpOnly; SameSite=None; Secure=false");
+        response.addHeader("Set-Cookie","AUTH_TOKEN="+ tokenService.createTokenFromUserId(userId) +"; Domain = "+domain+"; Path=/; HttpOnly;");
         response.getWriter().write("{ \"status\": \"success\" }");
     }
 

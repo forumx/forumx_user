@@ -15,7 +15,7 @@ import static java.util.Objects.isNull;
 public class CookieHelper {
 
 
-    private static final String COOKIE_DOMAIN = "densach.edu.vn";
+    private static final String COOKIE_DOMAIN = "electronic24h.site";
     private static final Boolean HTTP_ONLY = Boolean.TRUE;
     private static final Boolean SECURE = Boolean.FALSE;
 
@@ -41,7 +41,6 @@ public class CookieHelper {
         cookie.setSecure(SECURE);
         cookie.setMaxAge((int) maxAge.toSeconds());
         cookie.setPath("/");
-        cookie.setAttribute("SameSite", "None");
         // Generate cookie string
         Rfc6265CookieProcessor processor = new Rfc6265CookieProcessor();
         return processor.generateHeader(cookie, request);
