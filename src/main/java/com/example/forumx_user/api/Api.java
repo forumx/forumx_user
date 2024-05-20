@@ -35,7 +35,7 @@ public class Api {
 
     @GetMapping("/api/renewJwt")
     public ResponseEntity<String> login(Principal p){
-        return ResponseEntity.ok().header("Set-Cookie","AUTH_TOKEN="+ tokenService.createTokenFromUserName(p.getName()) +"; Domain = "+domain+"; Path=/; HttpOnly").build();
+        return ResponseEntity.ok().header("Set-Cookie","AUTH_TOKEN="+ tokenService.createTokenFromUserName(p.getName()) +"; Domain = "+domain+"; Path=/; HttpOnly; SameSite=None; Secure=false").build();
     }
 
     @GetMapping("/hello")
