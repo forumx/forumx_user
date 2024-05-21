@@ -1,7 +1,9 @@
 package com.example.forumx_user.api;
 
+import com.example.forumx_user.model.UserModel;
 import com.example.forumx_user.service.AccountService;
 import com.example.forumx_user.service.TokenService;
+import com.example.forumx_user.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,19 +20,22 @@ public class Api {
 
     private final TokenService tokenService;
 
+    private final UserService userService;
+
     @Value("${frontend.domain:localhost}")
     private String domain;
 
     @Autowired
-    public Api(AccountService accountService, TokenService tokenService){
+    public Api(AccountService accountService, TokenService tokenService, UserService userService){
         this.accountService = accountService;
         this.tokenService = tokenService;
+        this.userService = userService;
     }
 
     @GetMapping("/api/getMe")
-    public String getMe(Principal p){
+    public UserModel getMe(Principal p){
         log.info(p.toString());
-        return p.getName();
+        return userService.getUserByUsername(p.getName());
     }
 
     @GetMapping("/api/renewJwt")
