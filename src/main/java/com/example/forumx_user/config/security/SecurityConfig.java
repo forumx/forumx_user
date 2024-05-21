@@ -34,6 +34,9 @@ public class SecurityConfig {
     @Value("${spring.security.oauth2.client.registration.auth0.client-id}")
     private String clientId;
 
+    @Value("${frontend.domain}")
+    private String domain;
+
     private final UserDetailsService userDetailsService;
 
     private final TokenFilter tokenFilter;
@@ -112,6 +115,7 @@ public class SecurityConfig {
             try {
 //                response.sendRedirect(issuer + "v2/logout?client_id=" + clientId);
                 response.setStatus(HttpServletResponse.SC_ACCEPTED);
+                response.setHeader("Set-Cookie","AUTH_TOKEN=; Domain = "+domain+"; Path=/; HttpOnly");
                 response.getWriter().write("{ \"redirectUrl\": \"%s\" }".formatted(issuer + "v2/logout?client_id=" + clientId));
 
             } catch (IOException e) {
